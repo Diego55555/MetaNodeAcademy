@@ -85,6 +85,14 @@ func main() {
 	intervals = [][2]uint64{{23, 56}, {24, 25}, {10, 15}, {17, 25}, {22, 30}, {25, 30}}
 	mergedIntervals = mergeIntervals(intervals)
 	fmt.Println("MergedIntervals :", mergedIntervals)
+
+	// 两数之和
+	numberArray = []int{2, 7, 11, 15}
+	indexArray := twoSum(numberArray, 18)
+	fmt.Println("indexArray :", indexArray)
+	numberArray = []int{5, 3, 18, 2, 17, 5}
+	indexArray = twoSum(numberArray, 10)
+	fmt.Println("indexArray :", indexArray)
 }
 
 // 只出现一次的数字
@@ -290,27 +298,15 @@ func sortIntervals2(intervals [][2]uint64) {
 
 // 两数之和未目标值
 func twoSum(nums []int, target int) []int {
-	//排序
-	sort.Slice(nums, func(i, j int) bool {
-		return i < j
-	})
+	numMap := make(map[int]int)
 
-	count := len(nums)
-	for i := 0; i <= count; i++ {
-		for j := count - 1; j > i; j-- {
-			sum := nums[i] + nums[j]
-			if sum == target {
-				return []int{i, j}
-			}
-
-			if sum < target {
-				if j == count-1 {
-					return []int{}
-				} else {
-					break
-				}
-			}
+	for i, num := range nums {
+		complement := target - num
+		if index, exist := numMap[complement]; exist {
+			return []int{index, i}
 		}
+
+		numMap[num] = i
 	}
 
 	return []int{}
