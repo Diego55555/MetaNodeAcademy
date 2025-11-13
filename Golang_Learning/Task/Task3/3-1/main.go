@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -23,7 +24,22 @@ func main() {
 		return
 	}
 
-	err = insertRow(db)
+	// err = insertRow(db)
+	// if err != nil {
+	// 	return
+	// }
+
+	// err = searchRow(db)
+	// if err != nil {
+	// 	return
+	// }
+
+	// err = updateRow(db)
+	// if err != nil {
+	// 	return
+	// }
+
+	err = deleteRow(db)
 	if err != nil {
 		return
 	}
@@ -54,11 +70,54 @@ func createTable(db *sql.DB) error {
 }
 
 func insertRow(db *sql.DB) error {
-	// 插入记录
+	// 插入数据
 	_, err := db.Exec(
 		"insert into students (name, age, grade) values ('张三', 20, '三年级')")
 	if err != nil {
 		log.Fatal("插入数据失败:", err)
+	}
+
+	return err
+}
+
+func searchRow(db *sql.DB) error {
+	// 查找数据
+	var studentInfo student
+	err := db.QueryRow(`
+		select id, name, age, grade 
+		from students where age > ?
+	`, 18).Scan(&studentInfo.id, &studentInfo.name,
+		&studentInfo.age, &studentInfo.grade)
+	if err != nil {
+		log.Fatal("查找数据失败:", err)
+	}
+
+	fmt.Println("studentInfo:", studentInfo)
+
+	return err
+}
+
+func updateRow(db *sql.DB) error {
+	// 更新数据
+	_, err := db.Exec(`
+		update students set grade = ?
+		where name = ?
+	`, "四年级", "张三")
+	if err != nil {
+		log.Fatal("更新数据失败:", err)
+	}
+
+	return err
+}
+
+func deleteRow(db *sql.DB) error {
+	// 删除数据
+	_, err := db.Exec(`
+		delete from students
+		where age < ?
+	`, 15)
+	if err != nil {
+		log.Fatal("删除数据失败:", err)
 	}
 
 	return err
