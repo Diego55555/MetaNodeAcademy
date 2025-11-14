@@ -63,7 +63,7 @@ func createTable(db *sql.DB) error {
 	`
 	_, err := db.Exec(query)
 	if err != nil {
-		log.Printf("ERROR:打开数据库失败: %v", err)
+		log.Printf("ERROR:创建数据表失败: %v", err)
 	}
 
 	return err
