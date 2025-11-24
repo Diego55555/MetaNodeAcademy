@@ -9,4 +9,6 @@ func main() {
 		log.Printf("[ERROR]连接数据库失败, 退出程序")
 		return
 	}
+
+	startHttp()
 }
