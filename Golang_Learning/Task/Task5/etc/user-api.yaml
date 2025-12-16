@@ -1,0 +1,8 @@
+Name: user-api
+Host: 0.0.0.0
+Port: 8080
+Timeout: 3600000
+
+DB:
+  DataSource: root:test@tcp(127.0.0.1:3306)/go_learning_go_zero?charset=utf8mb4&parseTime=true&loc=Asia%2FShanghai
+

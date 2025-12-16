@@ -1,6 +1,6 @@
-syntax = "v1"
+syntax = "v1" //默认版本
 
-info (
+info ( //信息
 	author: "Diego"
 	date:   "20251202"
 	desc:   "api示例"

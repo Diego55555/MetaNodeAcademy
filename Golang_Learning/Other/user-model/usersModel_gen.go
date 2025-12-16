@@ -2,7 +2,7 @@
 // versions:
 //  goctl version: 1.9.2
 
-package genModel
+package user_model
 
 import (
 	"context"

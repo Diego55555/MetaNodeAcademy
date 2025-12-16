@@ -1,0 +1,112 @@
+syntax = "v1" //默认版本
+
+info ( //信息
+	author: "Diego"
+	date:   "20251215"
+	desc:   "任务5"
+)
+
+type (
+	UserInfo {
+		ID       uint64 `json:"ID"`
+		UserName string `json:"UserName"`
+	}
+	CommonResp {
+		Message string `json:"Message"`
+	}
+	RegisterReq {
+		UserName string `json:"UserName"`
+		Password string `json:"Password"`
+	}
+	RegisterResp {
+		Message string `json:"Message"`
+	}
+	LoginReq {
+		UserName string `json:"UserName"`
+		Password string `json:"Password"`
+	}
+	LoginResp {
+		ExpiresAt int64  `json:"ExpiresAt"`
+		Token     string `json:"Token"`
+		User      UserInfo
+	}
+	GetUserNameReq  {}
+	GetUserNameResp {
+		UserName string `json:"UserName"`
+	}
+	CreatePostReq {
+		title   string `json:"title"`
+		content string `json:"content"`
+	}
+	QueryPostReq {
+		id uint64 `json:"id"`
+	}
+	QueryPostResp {
+		id      uint64 `json:"id"`
+		title   string `json:"title"`
+		content string `json:"content"`
+	}
+	UpdatePostReq {
+		id      uint64 `json:"id"`
+		title   string `json:"title"`
+		content string `json:"content"`
+	}
+	DeletePostReq {
+		id uint64 `json:"id"`
+	}
+	CreateCommentReq {
+		postId  uint64 `json:"post_id"`
+		content string `json:"content"`
+	}
+	QueryCommentResp {
+		postId uint64 `json:"post_id"`
+	}
+)
+
+service user-api {
+	@doc "用户注册"
+	@handler Register
+	post /register (RegisterReq) returns (RegisterResp)
+
+	@doc "用户登录"
+	@handler Login
+	post /login (LoginReq) returns (LoginResp)
+}
+
+@server (
+	middleware: Authenticate
+)
+service user-api {
+	@doc "获取用户名"
+	@handler GetUserName
+	post /getUserName (GetUserNameReq) returns (GetUserNameResp)
+
+	@doc "创建文章"
+	@handler CreatePost
+	post /createPost (CreatePostReq) returns (CommonResp)
+
+	@doc "查询文章"
+	@handler QueryPost
+	post /queryPost (QueryPostReq) returns (QueryPostResp)
+
+	@doc "查询所有文章"
+	@handler QueryAllPost
+	post /queryAllPost returns ([]QueryPostResp)
+
+	@doc "更新文章"
+	@handler UpdatePost
+	post /updatePost (UpdatePostReq) returns (CommonResp)
+
+	@doc "删除文章"
+	@handler DeletePost
+	post /deletePost (DeletePostReq) returns (CommonResp)
+
+	@doc "创建评论"
+	@handler CreateComment
+	post /createComment (CreateCommentReq) returns (CommonResp)
+
+	@doc "查询所有评论"
+	@handler QueryAllComment
+	post /queryAllComment returns ([]QueryCommentResp)
+}
+
