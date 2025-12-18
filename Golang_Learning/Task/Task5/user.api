@@ -58,8 +58,12 @@ type (
 		postId  uint64 `json:"post_id"`
 		content string `json:"content"`
 	}
-	QueryCommentResp {
+	QueryCommentReq {
 		postId uint64 `json:"post_id"`
+	}
+	QueryCommentResp {
+		id      uint64 `json:"id"`
+		content string `json:"content"`
 	}
 )
 
@@ -107,6 +111,6 @@ service user-api {
 
 	@doc "查询所有评论"
 	@handler QueryAllComment
-	post /queryAllComment returns ([]QueryCommentResp)
+	post /queryAllComment (QueryCommentReq) returns ([]QueryCommentResp)
 }
 

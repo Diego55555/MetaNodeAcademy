@@ -5,11 +5,13 @@ package logic
 
 import (
 	"context"
+	"net/http"
 
 	"Task5/internal/svc"
 	"Task5/internal/types"
 
 	"github.com/zeromicro/go-zero/core/logx"
+	"github.com/zeromicro/x/errors"
 )
 
 type QueryAllCommentLogic struct {
@@ -27,8 +29,18 @@ func NewQueryAllCommentLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Q
 	}
 }
 
-func (l *QueryAllCommentLogic) QueryAllComment() (resp []types.QueryCommentResp, err error) {
-	// todo: add your logic here and delete this line
+func (l *QueryAllCommentLogic) QueryAllComment(req *types.QueryCommentReq) (resp []types.QueryCommentResp, err error) {
+	comments, err := l.svcCtx.CommentsModel.FindAll(l.ctx, req.PostId)
+	if err != nil {
+		return nil, errors.New(http.StatusInternalServerError, "内部错误")
+	}
 
-	return
+	for _, comment := range comments {
+		resp = append(resp, types.QueryCommentResp{
+			Id:      comment.Id,
+			Content: comment.Content,
+		})
+	}
+
+	return resp, nil
 }

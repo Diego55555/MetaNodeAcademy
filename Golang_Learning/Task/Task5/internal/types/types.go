@@ -39,8 +39,13 @@ type LoginResp struct {
 	User      UserInfo
 }
 
-type QueryCommentResp struct {
+type QueryCommentReq struct {
 	PostId uint64 `json:"post_id"`
+}
+
+type QueryCommentResp struct {
+	Id      uint64 `json:"id"`
+	Content string `json:"content"`
 }
 
 type QueryPostReq struct {
