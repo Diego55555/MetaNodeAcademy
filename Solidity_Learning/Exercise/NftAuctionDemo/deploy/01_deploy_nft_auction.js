@@ -8,7 +8,7 @@ module.exports = async ({getNamedAccounts, deployments}) => {
   console.log("部署用户地址：", deployer);
 
   //通过代理部署合约
-  const nftAuctionFactory = await ethers.getContractFactory("NftAuction");
+  const nftAuctionFactory = await ethers.getContractFactory("NftAuctionV3");
   const nftAuctionProxy = await upgrades.deployProxy(nftAuctionFactory, [], {
     initializer: "initialize",
   });
@@ -21,13 +21,13 @@ module.exports = async ({getNamedAccounts, deployments}) => {
 
   const storePath = path.resolve(__dirname, "./.cache/proxyNftAuction.json");
 
-  fs.writeFileSync(storePath, JSON.stringify({
+  await fs.writeFileSync(storePath, JSON.stringify({
     proxyAddress,
     implAddress,
     abi: nftAuctionFactory.interface.format("json"),  
   }));
 
-  await save("NftAuctionProxy", {
+  await deployments.save("NftAuctionProxy", {
     address: proxyAddress,
     abi: nftAuctionFactory.interface.format("json"),
   });

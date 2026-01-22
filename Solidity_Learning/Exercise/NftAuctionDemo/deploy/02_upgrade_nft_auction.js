@@ -13,7 +13,7 @@ module.exports = async ({getNamedAccounts, deployments}) => {
   const {proxyAddress, implAddress, abi} = proxyData;
 
   //升级合约
-  const nftAuctionFactoryV2 = await ethers.getContractFactory("NftAuctionV2");
+  const nftAuctionFactoryV2 = await ethers.getContractFactory("NftAuctionV4");
   const nftAuctionProxyV2 = await upgrades.upgradeProxy(proxyAddress, nftAuctionFactoryV2);
   await nftAuctionProxyV2.waitForDeployment();
   const proxyAddressV2 = await nftAuctionProxyV2.getAddress();
