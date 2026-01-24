@@ -9,7 +9,7 @@ describe("Test upgrade", async function () {
         console.log("nftAuctionProxy", nftAuctionProxy);
 
         //2.创建拍卖
-        const nftAuction = await ethers.getContractAt("NftAuctionV3", nftAuctionProxy.address);
+        const nftAuction = await ethers.getContractAt("NftAuction", nftAuctionProxy.address);
         console.log("1");
         await nftAuction.createAuction(
             100 * 1000,
@@ -34,9 +34,8 @@ describe("Test upgrade", async function () {
         const auctionInfo2 = await nftAuction.getAuction(0);
         console.log("升级后读取拍卖信息成功：", auctionInfo2);
 
-        const nftAuction2 = await ethers.getContractAt("NftAuctionV4", nftAuctionProxy.address);
-        const hello = await nftAuction2.hell
-        o();
+        const nftAuction2 = await ethers.getContractAt("NftAuctionV2", nftAuctionProxy.address);
+        const hello = await nftAuction2.hello();
         console.log("调用新合约方法hello():", hello);
 
         expect(auctionInfo2.startTime).to.equal(auctionInfo.startTime);

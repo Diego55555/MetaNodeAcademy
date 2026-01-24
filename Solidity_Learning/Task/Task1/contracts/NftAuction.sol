@@ -3,9 +3,13 @@ pragma solidity ^0.8;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
 import "hardhat/console.sol";
 
-contract NftAuctionV3 is Initializable, UUPSUpgradeable {
+
+contract NftAuction is Initializable, UUPSUpgradeable {
     // 结构体
     struct Auction {
         // 卖家
@@ -27,37 +31,40 @@ contract NftAuctionV3 is Initializable, UUPSUpgradeable {
         // NFT ID
         uint256 tokenId;
         // 参与竞价的资产类型 0x 地址表示eth，其他地址表示erc20
-        // 0x0000000000000000000000000000000000000000 表示eth
         address tokenAddress;
     }
 
+    // 状态变量
+    mapping(uint256 => Auction) public auctions;
     // 下一个拍卖ID
     uint256 public nextAuctionId;
     // 管理员地址
     address public admin;
+    // 价格预言机映射
+    mapping(address => AggregatorV3Interface) public priceFeeds;
 
     function initialize() public initializer {
         admin = msg.sender;
-    }
-
-    // 创建拍卖
-    function createAuction(
-        uint256 _duration,
-        uint256 _startPrice,
-        address _nftAddress,
-        uint256 _tokenId
-    ) public {
-        // 只有管理员可以创建拍卖
-        require(msg.sender == admin, "Only admin can create auctions");
-        // 检查参数
-        require(_duration >= 10, "Duration must be greater than 10s");
-        require(_startPrice > 0, "Start price must be greater than 0");
-
-        nextAuctionId++;
+        setPriceFeed(address(0), 0x694AA1769357215DE4FAC081bf1f309aDC325306); // ETH/USD
+        setPriceFeed(0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238, 0xA2F78ab2355fe2f984D808B5CeE7FD0A93D5270E); // USDC/USD
     }
 
     function _authorizeUpgrade(address) internal view override {
         // 只有管理员可以升级合约
         require(msg.sender == admin, "Only admin can upgrade");
+    }
+
+    function setPriceFeed(address tokenAddress, address _priceFeed) public {
+        priceFeeds[tokenAddress] = AggregatorV3Interface(_priceFeed);
+    }
+
+    function getChainlinkDataFeedLatestAnswer(address tokenAddress) public view returns (int) {
+        AggregatorV3Interface priceFeed = priceFeeds[tokenAddress];
+        (   ,
+            int256 answer,
+            ,
+            ,
+        ) = priceFeed.latestRoundData();
+        return answer;
     }
 }
