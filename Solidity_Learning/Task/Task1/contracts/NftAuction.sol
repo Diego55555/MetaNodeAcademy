@@ -5,7 +5,10 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
+
+event DebugInfo(string message);
 
 contract NftAuction is Initializable, UUPSUpgradeable {
     // 结构体
@@ -67,20 +70,26 @@ contract NftAuction is Initializable, UUPSUpgradeable {
     }
 
     // 创建拍卖
-    function createAuction(
+    function createNewAuction(
         uint256 _duration,
         uint256 _startPrice,
         address _nftAddress,
         uint256 _tokenId
     ) public {
+        emit DebugInfo("createAuction: called");
+
         // 只有管理员可以创建拍卖
         require(msg.sender == admin, "Only admin can create auctions");
         // 检查参数
         require(_duration >= 10, "Duration must be greater than 10s");
         require(_startPrice > 0, "Start price must be greater than 0");
 
+        emit DebugInfo("createAuction: checked");
+
         // 转移NFT到合约
         IERC721(_nftAddress).safeTransferFrom(msg.sender, address(this), _tokenId);
+
+        emit DebugInfo("createAuction: safeTransferFrom");
 
         auctions[nextAuctionId] = Auction({
             seller: msg.sender,
@@ -206,5 +215,84 @@ contract NftAuction is Initializable, UUPSUpgradeable {
         bytes calldata
     ) external pure returns (bytes4) {
         return this.onERC721Received.selector;
+    }
+
+    // 创建拍卖
+    function ntfTest(
+        address _nftAddress,
+        uint256 _tokenId
+    ) public {
+        address owner = IERC721(_nftAddress).ownerOf(_tokenId);
+        address approved = IERC721(_nftAddress).getApproved(_tokenId);
+    
+        emit DebugInfo(string.concat("NFT Owner: ", Strings.toHexString(uint256(uint160(owner)))));
+        emit DebugInfo(string.concat("Your address: ", Strings.toHexString(uint256(uint160(msg.sender)))));
+        emit DebugInfo(string.concat("Approved address: ", Strings.toHexString(uint256(uint160(approved)))));
+        emit DebugInfo(string.concat("Admin address: ", Strings.toHexString(uint256(uint160(admin)))));
+    } 
+
+    function fullDiagnosis(address _nftAddress, uint256 _tokenId) public {
+        emit DebugInfo(unicode"=== 完整NFT诊断 ===");
+        
+        // 1. 基础信息
+        emit DebugInfo(string.concat(unicode"诊断调用者:", Strings.toHexString(uint256(uint160(msg.sender)))));
+        emit DebugInfo(string.concat(unicode"NFT合约地址:", Strings.toHexString(uint256(uint160(_nftAddress)))));
+        emit DebugInfo(string.concat(unicode"Token ID:", Strings.toString(_tokenId)));
+        emit DebugInfo(string.concat(unicode"本合约地址:", Strings.toHexString(uint256(uint160(address(this))))));
+        
+        // 2. NFT所有权检查
+        try IERC721(_nftAddress).ownerOf(_tokenId) returns (address owner) {
+            emit DebugInfo(string.concat(unicode"NFT当前所有者:", Strings.toHexString(uint256(uint160(owner)))));
+            emit DebugInfo(string.concat(unicode"调用者是否是所有者?", owner == msg.sender ? "true":"false"));
+            
+            if (owner != msg.sender) {
+                emit DebugInfo(unicode"❌ 问题：你不是NFT所有者！");
+                emit DebugInfo(string.concat(unicode"你需要用地址", Strings.toHexString(uint256(uint160(owner))), unicode"来调用此函数"));
+                return;
+            }
+            
+            emit DebugInfo(unicode"✅ NFT所有权验证通过");
+            
+            // 3. 详细授权检查
+            emit DebugInfo(unicode"=== 授权状态检查 ===");
+            
+            // 单一授权
+            address approved;
+            try IERC721(_nftAddress).getApproved(_tokenId) returns (address _approved) {
+                approved = _approved;
+                emit DebugInfo(string.concat(unicode"单一授权地址:", Strings.toHexString(uint256(uint160(approved)))));
+                emit DebugInfo(string.concat(unicode"本合约是否被单一授权?", approved == address(this) ? "true":"false"));
+            } catch {
+                emit DebugInfo(unicode"⚠️ getApproved调用失败");
+            }
+            
+            // 全局授权
+            bool isApprovedForAll = false;
+            try IERC721(_nftAddress).isApprovedForAll(msg.sender, address(this)) returns (bool _isApproved) {
+                isApprovedForAll = _isApproved;
+                emit DebugInfo(string.concat(unicode"是否有全局授权?", isApprovedForAll ? "true":"false"));
+            } catch {
+                emit DebugInfo(unicode"⚠️ isApprovedForAll调用失败");
+            }
+            
+            emit DebugInfo(string.concat(unicode"最终授权状态（任一即可）:", approved == address(this) || isApprovedForAll ? "true":"false"));
+            
+            // 4. 尝试模拟转移
+            emit DebugInfo(unicode"=== 模拟转移测试 ===");
+            
+            if (approved == address(this) || isApprovedForAll) {
+                emit DebugInfo(unicode"✅ 授权检查通过，理论上可以转移");
+            } else {
+                emit DebugInfo(unicode"❌ 授权失败：合约未被授权");
+                emit DebugInfo(unicode"解决方案：");
+                emit DebugInfo(string.concat(unicode"1. 调用 approve(", Strings.toHexString(uint256(uint160(address(this)))), ", ", Strings.toString(_tokenId), ")"));
+                emit DebugInfo(string.concat(unicode"2. 或调用 setApprovalForAll(", Strings.toHexString(uint256(uint160(address(this)))), ", true)"));
+            }
+            
+        } catch Error(string memory reason) {
+            emit DebugInfo(string.concat(unicode"❌ ownerOf错误:", reason));
+        } catch {
+            emit DebugInfo(string.concat(unicode"❌ 未知错误，可能NFT不存在"));
+        }
     }
 }
