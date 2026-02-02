@@ -4,20 +4,21 @@ const path = require("path");
 
 module.exports = async ({getNamedAccounts, deployments}) => {
   const {deployer} = await getNamedAccounts();
-  console.log("部署用户地址：", deployer);
 
   //直接部署合约
-  const nftPublisherFactory = await ethers.getContractFactory("NftPublisher");
+  const deployerSigner = await ethers.getSigner(deployer);
+  const nftPublisherFactory = await ethers.getContractFactory(
+    "NftPublisher", 
+    deployerSigner        //可选，不提供则使用hardhat.config.js中配置的第一个账户
+  );
   const nftPublisherContract = await nftPublisherFactory.deploy();
   await nftPublisherContract.waitForDeployment();
-  const contractAddress = await nftPublisherContract.getAddress()
+  const contractAddress = await nftPublisherContract.getAddress();
 
-  console.log("合约部署地址:", contractAddress);
-  
   // 保存合约地址和ABI到本地文件
-  const storePath = path.resolve(__dirname, "./.cache/NftPublisher.json");
+  const storePath = path.resolve(__dirname, "./.cache/deployNftPublisher.json");
   await fs.writeFileSync(storePath, JSON.stringify({
-    contractAddress,
+    address: contractAddress,
     abi: nftPublisherFactory.interface.format("json"),  
   }));
 
