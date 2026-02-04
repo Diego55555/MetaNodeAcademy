@@ -70,12 +70,12 @@ contract NftAuction is Initializable, UUPSUpgradeable {
     }
 
     // 创建拍卖
-    function createNewAuction(
+    function createAuction(
         uint256 _duration,
         uint256 _startPrice,
         address _nftAddress,
         uint256 _tokenId
-    ) public {
+    ) public returns (uint256 auctionId) {
         emit DebugInfo("createAuction: called");
 
         // 只有管理员可以创建拍卖
@@ -91,6 +91,7 @@ contract NftAuction is Initializable, UUPSUpgradeable {
 
         emit DebugInfo("createAuction: safeTransferFrom");
 
+        auctionId = nextAuctionId;
         auctions[nextAuctionId] = Auction({
             seller: msg.sender,
             duration: _duration,

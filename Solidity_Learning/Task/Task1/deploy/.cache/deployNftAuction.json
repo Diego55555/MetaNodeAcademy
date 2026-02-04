@@ -1,1 +1,35 @@
-{"proxyAddress":"0x4b71E31a7D224F9D7DC1fe442bc26de24117D5f2","implAddress":"0xd43308766786b39323eddFd6fc9513728b4E22a3","abi":["error AddressEmptyCode(address)","error ERC1967InvalidImplementation(address)","error ERC1967NonPayable()","error FailedCall()","error InvalidInitialization()","error NotInitializing()","error StringsInsufficientHexLength(uint256,uint256)","error UUPSUnauthorizedCallContext()","error UUPSUnsupportedProxiableUUID(bytes32)","event DebugInfo(string)","event Initialized(uint64)","event Upgraded(address indexed)","function UPGRADE_INTERFACE_VERSION() view returns (string)","function admin() view returns (address)","function auctions(uint256) view returns (address,uint256,uint256,uint256,bool,address,uint256,address,uint256,address)","function createNewAuction(uint256,uint256,address,uint256)","function endAuction(uint256)","function fullDiagnosis(address,uint256)","function getChainlinkDataFeedLatestAnswer(address) view returns (int256)","function getVersion() pure returns (string)","function initialize()","function nextAuctionId() view returns (uint256)","function nftTest(address,uint256)","function onERC721Received(address,address,uint256,bytes) pure returns (bytes4)","function placeBid(uint256,uint256,address) payable","function priceFeeds(address) view returns (address)","function proxiableUUID() view returns (bytes32)","function setPriceFeed(address,address)","function upgradeToAndCall(address,bytes) payable"]}
+{
+    "proxyAddress": "0xC615338910BDbcBD438Bbd8389e58a5da27E64Ae",
+    "implAddress": "0x1e42f348664ae6b61668C5ffcA7ae2a987BBbDAC",
+    "abi": [
+        "error AddressEmptyCode(address)",
+        "error ERC1967InvalidImplementation(address)",
+        "error ERC1967NonPayable()",
+        "error FailedCall()",
+        "error InvalidInitialization()",
+        "error NotInitializing()",
+        "error StringsInsufficientHexLength(uint256,uint256)",
+        "error UUPSUnauthorizedCallContext()",
+        "error UUPSUnsupportedProxiableUUID(bytes32)",
+        "event DebugInfo(string)",
+        "event Initialized(uint64)",
+        "event Upgraded(address indexed)",
+        "function UPGRADE_INTERFACE_VERSION() view returns (string)",
+        "function admin() view returns (address)",
+        "function auctions(uint256) view returns (address,uint256,uint256,uint256,bool,address,uint256,address,uint256,address)",
+        "function createNewAuction(uint256,uint256,address,uint256)",
+        "function endAuction(uint256)",
+        "function fullDiagnosis(address,uint256)",
+        "function getChainlinkDataFeedLatestAnswer(address) view returns (int256)",
+        "function getVersion() pure returns (string)",
+        "function initialize()",
+        "function nextAuctionId() view returns (uint256)",
+        "function nftTest(address,uint256)",
+        "function onERC721Received(address,address,uint256,bytes) pure returns (bytes4)",
+        "function placeBid(uint256,uint256,address) payable",
+        "function priceFeeds(address) view returns (address)",
+        "function proxiableUUID() view returns (bytes32)",
+        "function setPriceFeed(address,address)",
+        "function upgradeToAndCall(address,bytes) payable"
+    ]
+}

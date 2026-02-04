@@ -125,6 +125,11 @@
       "address": "0x4b71E31a7D224F9D7DC1fe442bc26de24117D5f2",
       "txHash": "0xbbdf22dc4c926a4a7cf8f726dc28bc0c846481755d2915d40b92092cc6a84997",
       "kind": "uups"
+    },
+    {
+      "address": "0xC615338910BDbcBD438Bbd8389e58a5da27E64Ae",
+      "txHash": "0x8b0b58bbe2660c7c9019a5a667d59c1b784701c86ba9779c292b5cb7e355abbb",
+      "kind": "uups"
     }
   ],
   "impls": {
@@ -138,7 +143,7 @@
             "label": "auctions",
             "offset": 0,
             "slot": "0",
-            "type": "t_mapping(t_uint256,t_struct(Auction)8044_storage)",
+            "type": "t_mapping(t_uint256,t_struct(Auction)6465_storage)",
             "contract": "NftAuction",
             "src": "contracts\\NftAuction.sol:43"
           },
@@ -206,11 +211,11 @@
             "label": "mapping(address => contract AggregatorV3Interface)",
             "numberOfBytes": "32"
           },
-          "t_mapping(t_uint256,t_struct(Auction)8044_storage)": {
+          "t_mapping(t_uint256,t_struct(Auction)6465_storage)": {
             "label": "mapping(uint256 => struct NftAuction.Auction)",
             "numberOfBytes": "32"
           },
-          "t_struct(Auction)8044_storage": {
+          "t_struct(Auction)6465_storage": {
             "label": "struct NftAuction.Auction",
             "members": [
               {
