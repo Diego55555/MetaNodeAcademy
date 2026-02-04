@@ -73,6 +73,9 @@ describe("Test Auction", async function () {
 
         //创建拍卖
         auctionId = await nftAuction.createAuction(300, 10000, nftAddress, nftTokenId);
+        console.log("返回值:", auctionId);
+        console.log("类型:", typeof auctionId);
+        console.log("转字符串:", auctionId.toString());
 
         console.log("✅ 拍卖创建成功,拍卖号：", auctionId);
     });
@@ -81,7 +84,9 @@ describe("Test Auction", async function () {
         // 用户1出价
         const user1Signer = await ethers.getSigner(user1);
         const nftAuctionUser1 = nftAuction.connect(user1Signer);
-        await nftAuctionUser1.placeBid(auctionId, 20000, address(0));
+        const bidAmount1 = 20000;
+        await nftAuctionUser1.placeBid(auctionId, bidAmount1, ethers.ZeroAddress,
+            {value: bidAmount1});
         console.log("✅ 用户1出价成功, 出价金额：20000Wei");
 
         //打印拍卖信息
@@ -91,7 +96,9 @@ describe("Test Auction", async function () {
         // 用户2出价
         const user2Signer = await ethers.getSigner(user2);
         const nftAuctionUser2 = nftAuction.connect(user2Signer);
-        await nftAuctionUser2.placeBid(auctionId, 30000, address(0));
+        const bidAmount2 = 30000;
+        await nftAuctionUser2.placeBid(auctionId, bidAmount2, ethers.ZeroAddress,
+            {value: bidAmount2});
         console.log("✅ 用户2出价成功, 出价金额：30000Wei");
 
         //打印拍卖信息

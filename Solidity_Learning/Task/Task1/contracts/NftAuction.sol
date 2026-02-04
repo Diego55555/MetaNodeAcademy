@@ -86,11 +86,6 @@ contract NftAuction is Initializable, UUPSUpgradeable {
 
         emit DebugInfo("createAuction: checked");
 
-        // 转移NFT到合约
-        IERC721(_nftAddress).safeTransferFrom(msg.sender, address(this), _tokenId);
-
-        emit DebugInfo("createAuction: safeTransferFrom");
-
         auctionId = nextAuctionId;
         auctions[nextAuctionId] = Auction({
             seller: msg.sender,
@@ -182,7 +177,7 @@ contract NftAuction is Initializable, UUPSUpgradeable {
 
         // 转移NFT到最高出价者
         IERC721(auction.nftContract).safeTransferFrom(
-            address(this),
+            auction.seller,
             auction.highestBidder,
             auction.tokenId
         );
