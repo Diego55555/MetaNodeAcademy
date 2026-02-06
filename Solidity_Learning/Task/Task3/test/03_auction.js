@@ -28,15 +28,21 @@ describe("Test Auction", async function () {
         const inputStoreData = JSON.parse(fs.readFileSync(inputStorePath, "utf-8"));
         const proxyAddress = inputStoreData.proxyAddress;
 
-        console.log("拍卖合约地址:", proxyAddress);
+        console.log("拍卖合约代理地址:", proxyAddress);
 
         //获取合约实例
         const deployerSigner = await ethers.getSigner(deployer);
-        nftAuction = await ethers.getContractAt(
-            "NftAuction",
-            proxyAddress,
-            deployerSigner      //签名者（可选）,不提供则只能读取，不能发送交易
-        );
+        const nftAuctionFactory = await ethers.getContractFactory("NftAuction");
+        nftAuction = nftAuctionFactory.attach(proxyAddress).connect(deployerSigner);
+        // nftAuction = await ethers.getContractAt(
+        //     "NftAuction",
+        //     proxyAddress,
+        //     deployerSigner      //签名者（可选）,不提供则只能读取，不能发送交易
+        // );
+
+        // 验证实现合约地址
+        const implAddress = await upgrades.erc1967.getImplementationAddress(proxyAddress);
+        console.log("拍卖合约逻辑地址:", implAddress);
 
         //读取部署配置文件
         const inputStorePath2 = path.resolve(__dirname, "../deploy/.cache/deployNftPublisher.json");
@@ -72,11 +78,20 @@ describe("Test Auction", async function () {
         console.log("验证授权 - 目标地址:", auctionAddress);
 
         //创建拍卖
-        auctionId = await nftAuction.createAuction(300, 10000, nftAddress, nftTokenId);
-        console.log("返回值:", auctionId);
-        console.log("类型:", typeof auctionId);
-        console.log("转字符串:", auctionId.toString());
-
+        const txResponse = await nftAuction.createAuction(300, 10000, nftAddress, nftTokenId);
+        const receipt = await txResponse.wait();
+        
+        // 从事件中获取拍卖ID
+        const event = receipt.logs.find(log => {
+            try {
+                const parsedLog = nftAuction.interface.parseLog(log);
+                return parsedLog?.name === "CreateAuctionResponse";
+            } catch {
+                return false;
+            }
+        });
+        
+        auctionId = event?.args.auctionId;
         console.log("✅ 拍卖创建成功,拍卖号：", auctionId);
     });
 
@@ -85,8 +100,10 @@ describe("Test Auction", async function () {
         const user1Signer = await ethers.getSigner(user1);
         const nftAuctionUser1 = nftAuction.connect(user1Signer);
         const bidAmount1 = 20000;
-        await nftAuctionUser1.placeBid(auctionId, bidAmount1, ethers.ZeroAddress,
+        const tx1 = await nftAuctionUser1.placeBid(auctionId, bidAmount1, ethers.ZeroAddress,
             {value: bidAmount1});
+        // 等待交易确认（默认等 1 个区块确认）,需要修改状态的函数都需要交易确认
+        await tx1.wait();
         console.log("✅ 用户1出价成功, 出价金额：20000Wei");
 
         //打印拍卖信息
@@ -97,8 +114,10 @@ describe("Test Auction", async function () {
         const user2Signer = await ethers.getSigner(user2);
         const nftAuctionUser2 = nftAuction.connect(user2Signer);
         const bidAmount2 = 30000;
-        await nftAuctionUser2.placeBid(auctionId, bidAmount2, ethers.ZeroAddress,
+        const tx2 = await nftAuctionUser2.placeBid(auctionId, bidAmount2, ethers.ZeroAddress,
             {value: bidAmount2});
+        // 等待交易确认（默认等 1 个区块确认）,需要修改状态的函数都需要交易确认
+        await tx2.wait();
         console.log("✅ 用户2出价成功, 出价金额：30000Wei");
 
         //打印拍卖信息

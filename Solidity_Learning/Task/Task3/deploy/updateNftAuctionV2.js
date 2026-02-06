@@ -15,7 +15,14 @@ module.exports = async ({getNamedAccounts, deployments}) => {
   const nftAuctionV2Factory = await ethers.getContractFactory("NftAuctionV2", deployerSigner);
   const nftAuctionV2Proxy = await upgrades.upgradeProxy(proxyAddress, nftAuctionV2Factory);
   await nftAuctionV2Proxy.waitForDeployment();
-  console.log("**版本号:", await nftAuctionV2Proxy.getVersion());
+
+  // 等待下一个区块，确保区块链节点的缓存和 RPC 同步到新逻辑
+  await new Promise((resolve) => {
+    ethers.provider.once("block", (blockNumber) => {
+      console.log(`新出块：#${blockNumber}`);
+      resolve();
+    });
+  });
 
   //获取升级后的合约实例
   const proxyAddressV2 = await nftAuctionV2Proxy.getAddress();

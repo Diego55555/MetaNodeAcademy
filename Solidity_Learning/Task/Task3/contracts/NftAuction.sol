@@ -9,6 +9,7 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
 
 event DebugInfo(string message);
+event CreateAuctionResponse(uint256 auctionId);
 
 contract NftAuction is Initializable, UUPSUpgradeable {
     // 结构体
@@ -100,6 +101,7 @@ contract NftAuction is Initializable, UUPSUpgradeable {
             tokenAddress: address(0)
         });
 
+        emit CreateAuctionResponse(auctionId);
         nextAuctionId++;
     }
 
