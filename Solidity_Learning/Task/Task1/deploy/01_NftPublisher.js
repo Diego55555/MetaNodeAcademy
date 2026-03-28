@@ -7,23 +7,23 @@ module.exports = async ({getNamedAccounts, deployments}) => {
   console.log("部署用户地址：", deployer);
 
   //通过代理部署合约
-  const nftPublisherFactory = await ethers.getContractFactory("NftPublisher");
-  const nftPublisherContract = await nftPublisherFactory.deploy();
-  await nftPublisherContract.waitForDeployment();
-  const contractAddress = await nftPublisherContract.getAddress()
+  const simpleERC20Factory = await ethers.getContractFactory("SimpleERC20");
+  const simpleERC20Contract = await simpleERC20Factory.deploy(1000000);
+  await simpleERC20Contract.waitForDeployment();
+  const contractAddress = await simpleERC20Contract.getAddress()
 
   console.log("合约部署地址:", contractAddress);
 
 
-  const storePath = path.resolve(__dirname, "./.cache/proxyNftPublisher.json");
+  const storePath = path.resolve(__dirname, "./.cache/proxysimpleERC20.json");
   await fs.writeFileSync(storePath, JSON.stringify({
     contractAddress,
-    abi: nftPublisherFactory.interface.format("json"),  
+    abi: simpleERC20Factory.interface.format("json"),  
   }));
 
-  await deployments.save("NftPublisher", {
+  await deployments.save("simpleERC20", {
     address: contractAddress,
-    abi: nftPublisherFactory.interface.format("json"),
+    abi: simpleERC20Factory.interface.format("json"),
   });
 }
-module.exports.tags = ["deployNftPublisher"];
+module.exports.tags = ["deploySimpleERC20"];
