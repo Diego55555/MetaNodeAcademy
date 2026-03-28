@@ -1,15 +1,18 @@
 require("@nomicfoundation/hardhat-toolbox");
 require("hardhat-deploy");
-require('@openzeppelin/hardhat-upgrades');
-require("dotenv").config();
 
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
   solidity: "0.8.28",
-  networks:{
-    sepolia:{
-      url:process.env.SEPOLIA_RPC_URL,
-      accounts:[process.env.SEPOLIA_PRIVATE_KEY]
-    }
-  }
+  namedAccounts: {
+    deployer: {
+      default: 0,           // 本地网络使用第一个账户
+    },
+    user1: {
+      default: 1,           // 本地网络使用第二个账户
+    },
+    user2: {
+      default: 2,           // 本地网络使用第三个账户
+    },
+  },
 };

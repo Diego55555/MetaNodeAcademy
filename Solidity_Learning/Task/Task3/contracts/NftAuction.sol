@@ -9,6 +9,7 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
 
 event DebugInfo(string message);
+event CreateAuctionResponse(uint256 auctionId);
 
 contract NftAuction is Initializable, UUPSUpgradeable {
     // 结构体
@@ -70,12 +71,12 @@ contract NftAuction is Initializable, UUPSUpgradeable {
     }
 
     // 创建拍卖
-    function createNewAuction(
+    function createAuction(
         uint256 _duration,
         uint256 _startPrice,
         address _nftAddress,
         uint256 _tokenId
-    ) public {
+    ) public returns (uint256 auctionId) {
         emit DebugInfo("createAuction: called");
 
         // 只有管理员可以创建拍卖
@@ -86,11 +87,7 @@ contract NftAuction is Initializable, UUPSUpgradeable {
 
         emit DebugInfo("createAuction: checked");
 
-        // 转移NFT到合约
-        IERC721(_nftAddress).safeTransferFrom(msg.sender, address(this), _tokenId);
-
-        emit DebugInfo("createAuction: safeTransferFrom");
-
+        auctionId = nextAuctionId;
         auctions[nextAuctionId] = Auction({
             seller: msg.sender,
             duration: _duration,
@@ -104,6 +101,7 @@ contract NftAuction is Initializable, UUPSUpgradeable {
             tokenAddress: address(0)
         });
 
+        emit CreateAuctionResponse(auctionId);
         nextAuctionId++;
     }
 
@@ -124,16 +122,11 @@ contract NftAuction is Initializable, UUPSUpgradeable {
         );
 
         // 判断出价是否大于当前最高出价，统一的价值尺度到USD
-        uint payValue;
-        if (_tokenAddress != address(0)) {
-            // 处理 ERC20
-            payValue = amount * uint(getChainlinkDataFeedLatestAnswer(_tokenAddress));
-        } else {
+        if (_tokenAddress == address(0)) {
             // 处理 ETH
             amount = msg.value;
-
-            payValue = amount * uint(getChainlinkDataFeedLatestAnswer(address(0)));
         }
+        uint payValue = amount * uint(getChainlinkDataFeedLatestAnswer(_tokenAddress));
         
         //获取起拍价格（USD）
         uint startPriceValue = auction.startPrice *
@@ -186,7 +179,7 @@ contract NftAuction is Initializable, UUPSUpgradeable {
 
         // 转移NFT到最高出价者
         IERC721(auction.nftContract).safeTransferFrom(
-            address(this),
+            auction.seller,
             auction.highestBidder,
             auction.tokenId
         );
@@ -209,16 +202,21 @@ contract NftAuction is Initializable, UUPSUpgradeable {
     }
 
     function onERC721Received(
-        address,
-        address,
-        uint256,
-        bytes calldata
+        address,    //调用 safeTransferFrom 的地址，发起者
+        address,    //NFT 拥有者
+        uint256,    //NFT 的 Token ID
+        bytes calldata  //额外的数据
     ) external pure returns (bytes4) {
+        // 必须返回这个固定的 magic value，否则转移会被拒绝
         return this.onERC721Received.selector;
     }
 
-    // 创建拍卖
-    function ntfTest(
+    function getVersion() public pure virtual returns (string memory) {
+        return "1.0.0";
+    }
+
+    // 测试NFT信息
+    function nftTest(
         address _nftAddress,
         uint256 _tokenId
     ) public {
