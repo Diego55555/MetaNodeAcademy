@@ -2,13 +2,16 @@ package main
 
 import (
 	"context"
+	"crypto/ecdsa"
 	"fmt"
 	"log"
+	"math/big"
 	"os"
 	"time"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/joho/godotenv"
 )
@@ -19,7 +22,7 @@ func main() {
 		log.Println("未找到 .env 文件，使用系统环境变量")
 	}
 
-	rpcURL := os.Getenv("SEPOLIA_RPC_URL")
+	rpcURL := os.Getenv("SEPOLIA_HTTPS_RPC_URL")
 
 	ctx, cancel := context.WithCancel(context.Background()) // 上下文对象，用于控制 client 的生命周期
 	defer cancel()
@@ -36,11 +39,32 @@ func main() {
 	}
 	log.Printf("chain id: %v/n", chainID)
 
+	//查询区块
 	latestBlock, err := client.BlockByNumber(ctx, nil)
 	if err != nil {
 		log.Fatalf("failed to get latest block: %v", err)
 	}
 	printBlockInfo("Latest Block", latestBlock)
+
+	//发送交易
+	privateKeyHex := os.Getenv("SEPOLIA_PRIVATE_KEY1")
+	privateKeyECDSA, err := crypto.HexToECDSA(privateKeyHex)
+	publicKeyECDSA, ok := privateKeyECDSA.Public().(*ecdsa.PublicKey)
+	if !ok {
+		log.Fatalf("failed to get publicKey")
+	}
+	fromAddress := crypto.PubkeyToAddress(*publicKeyECDSA)
+	nonce, err := client.PendingNonceAt(context.Background(), fromAddress)
+	value := big.NewInt(10000000000000000) //0.01ETH
+	gasPrice, err := client.SuggestGasPrice(context.Background())
+	gasLimit := uint64(21000)
+	toAddress := common.HexToAddress(os.Getenv("SEPOLIA_ADDRESS2"))
+	tx := types.NewTransaction(nonce, toAddress, value, gasLimit, gasPrice, nil)
+	signedTx, err := types.SignTx(tx, types.NewEIP155Signer(chainID), privateKeyECDSA)
+	err = client.SendTransaction(context.Background(), signedTx)
+	if err != nil {
+		log.Fatalf("failed to send transaction")
+	}
 }
 
 func printBlockInfo(title string, block *types.Block) {

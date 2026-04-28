@@ -1,1 +1,5 @@
-Go-ethereum_Learning/Task/Task1/.env
+*.env
+build
+.bin
+node_modules
+/Solidity_Learning/Exercise/ExchangeToken/README.md
